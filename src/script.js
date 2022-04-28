@@ -26,16 +26,29 @@ const geometry = new THREE.PlaneBufferGeometry(1, 1, 32, 32)
 // Material
 const material = new THREE.ShaderMaterial({
     uniforms: {
-        uTime: {value: 0},
+        uTime: { value: 0 },
+        uTexture: { value: null }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
     side: THREE.DoubleSide
 })
+let materials = []
+let meshes = []
 
-// Mesh
-const mesh = new THREE.Mesh(geometry, material)
-scene.add(mesh)
+let images = [...document.querySelectorAll('img')]
+images.forEach((image, i) => {
+    let mat = material.clone()
+    materials.push(mat)
+    mat.uniforms.uTexture.value = new THREE.TextureLoader().load(image.src)
+    let geo = new THREE.PlaneBufferGeometry(1.777, 1, 32, 32)
+    let mesh = new THREE.Mesh(geo, mat)
+    meshes.push(mesh)
+    scene.add(mesh)
+    mesh.position.y = i * 1.2
+})
+
+
 
 /**
  * Sizes
@@ -45,8 +58,7 @@ const sizes = {
     height: window.innerHeight
 }
 
-window.addEventListener('resize', () =>
-{
+window.addEventListener('resize', () => {
     // Update sizes
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
@@ -97,28 +109,39 @@ let block = document.getElementById('block')
 let wrap = document.getElementById('wrap')
 let elems = [...document.querySelectorAll('.n')]
 
-window.addEventListener('wheel', (event) =>{
-    speed += event.deltaY*0.0003
+window.addEventListener('wheel', (event) => {
+    speed += event.deltaY * 0.0003
 })
 
-let objs = Array(5).fill({dist: 0})
-const tick = () =>
-{
-
+let objs = Array(5).fill({ dist: 0 })
+const raf = () => {
     position += speed
     speed *= 0.8
 
-    objs.forEach((o, i)=> {
-        o.dist = Math.min(Math.abs(position -i ), 1)
-        o.dist = 1 - o.dist**2
-        elems[i].style.transform = `scale(${1 + 0.4*o.dist})`
+    objs.forEach((o, i) => {
+        o.dist = Math.min(Math.abs(position - i), 1)
+        o.dist = 1 - o.dist ** 2
+        elems[i].style.transform = `scale(${1 + 0.4 * o.dist})`
+        let scale = 1 + 0.1 * o.dist
+        if (meshes.length) {
+            meshes[i].position.y = i * 1.2 - position * 1.2
+
+            meshes[i].scale.set(scale, scale, scale)
+        }
     })
 
     rounded = Math.round(position)
 
     let diff = (rounded - position)
-    position += Math.sign(diff)*Math.pow(Math.abs(diff), 0.7)*0.015;
-    wrap.style.transform = `translateY(${-position*100 + 50}px)`
+    position += Math.sign(diff) * Math.pow(Math.abs(diff), 0.7) * 0.015;
+    wrap.style.transform = `translateY(${-position * 100 + 50}px)`
+
+    window.requestAnimationFrame(raf)
+
+}
+const tick = () => {
+
+
 
 
     // Update controls
@@ -128,7 +151,12 @@ const tick = () =>
     const elapsedTime = clock.getElapsedTime()
 
     // Update uniforms
-    material.uniforms.uTime.value = elapsedTime
+    if (materials.length) {
+        materials.forEach((mat, i) => {
+            mat.uniforms.uTime.value = elapsedTime
+        })
+    }
+    // material.uniforms.uTime.value = elapsedTime
 
     // Render
     renderer.render(scene, camera)
@@ -138,3 +166,4 @@ const tick = () =>
 }
 
 tick()
+raf()

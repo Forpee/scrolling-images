@@ -35,17 +35,25 @@ const material = new THREE.ShaderMaterial({
 })
 let materials = []
 let meshes = []
+let groups = []
 
 let images = [...document.querySelectorAll('img')]
 images.forEach((image, i) => {
     let mat = material.clone()
     materials.push(mat)
+    let group = new THREE.Group()
     mat.uniforms.uTexture.value = new THREE.TextureLoader().load(image.src)
     let geo = new THREE.PlaneBufferGeometry(1.777, 1, 32, 32)
     let mesh = new THREE.Mesh(geo, mat)
     meshes.push(mesh)
-    scene.add(mesh)
+    group.add(mesh)
+    groups.push(group)
+    scene.add(group)
     mesh.position.y = i * 1.2
+
+    group.rotation.y = -0.3
+    group.rotation.x = -0.3
+    group.rotation.z = -0.2
 })
 
 

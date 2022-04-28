@@ -13,4 +13,29 @@ body {
     top: 0;
     left: 0;
     outline: none;
+    z-index: -1;
+}
+
+#block {
+    height: 100px;
+    width: 100px;
+    position: absolute;
+    background-color: red;
+    z-index: 1;
+}
+
+.n {
+    position: absolute;
+    top: 100px;
+    width: 200px;
+    height: 10px;
+    background-color: black;
+}
+.n1{ top: 200px}
+.n2{ top: 300px}
+.n3{ top: 400px}
+.n4{ top: 500px}
+
+#wrap{
+    z-index: 1;
 }

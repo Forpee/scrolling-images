@@ -72,8 +72,8 @@ camera.position.set(0, 0, 2)
 scene.add(camera)
 
 // Controls
-const controls = new OrbitControls(camera, canvas)
-controls.enableDamping = true
+// const controls = new OrbitControls(camera, canvas)
+// controls.enableDamping = true
 
 /**
  * Renderer
@@ -83,16 +83,46 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
+renderer.setClearColor(0xEEEEEE, 1)
 /**
  * Animate
  */
 const clock = new THREE.Clock()
 
+let speed = 0
+let position = 0
+let rounded = 0
+
+let block = document.getElementById('block')
+let wrap = document.getElementById('wrap')
+let elems = [...document.querySelectorAll('.n')]
+
+window.addEventListener('wheel', (event) =>{
+    speed += event.deltaY*0.0003
+})
+
+let objs = Array(5).fill({dist: 0})
 const tick = () =>
 {
+
+    position += speed
+    speed *= 0.8
+
+    objs.forEach((o, i)=> {
+        o.dist = Math.min(Math.abs(position -i ), 1)
+        o.dist = 1 - o.dist**2
+        elems[i].style.transform = `scale(${1 + 0.4*o.dist})`
+    })
+
+    rounded = Math.round(position)
+
+    let diff = (rounded - position)
+    position += Math.sign(diff)*Math.pow(Math.abs(diff), 0.7)*0.015;
+    wrap.style.transform = `translateY(${-position*100 + 50}px)`
+
+
     // Update controls
-    controls.update()
+    // controls.update()
 
     // Get elapsedtime
     const elapsedTime = clock.getElapsedTime()
